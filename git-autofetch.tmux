@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 
 PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+
+# Check if we are in tmux
+check_tmux() {
+  tmux has-session >/dev/null 2>&1
+}
+check_tmux || exit 0
+
 conf() (tmux show -gqv "@git-autofetch-$1")
 
 LOGGING=$(conf "logging")
@@ -42,15 +49,6 @@ get_repo_root() {
   echo "$repo_root"
 }
 
-# Check if we are in tmux
-check_tmux() {
-  if [ "$TERM_PROGRAM" = "tmux" ]; then
-    true
-  else
-    false
-  fi
-}
-
 # Control fetch if it's repo & time is reached
 path_should_fetch() {
   repo_root_path=$(get_repo_root "$1")
@@ -80,8 +78,15 @@ path_should_fetch() {
   [ "$should_fetch" -eq 1 ]
 }
 
+is_in_tmux() {
+  [ -n "$TMUX" ]
+}
+
 # Check changed path
 check_current() {
+  if ! is_in_tmux; then
+    exit 0
+  fi
   path="${1-$(pwd)}"
   path_control "$path" &&
     path_should_fetch "$path" &&
