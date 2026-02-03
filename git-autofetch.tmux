@@ -107,7 +107,7 @@ add_cron_job() {
   if ! crontab -l | grep -q "$script_file_path"; then
     (crontab -l | {
       cat
-      echo "*/1 * * * * pgrep -x \"tmux\" > /dev/null && $script_file_path --scan-paths"
+      echo "*/5 * * * * tmux has-session 2>/dev/null && $script_file_path --scan-paths > /dev/null 2>&1"
     } | crontab -) &&
       echo "Added cron job"
   else
