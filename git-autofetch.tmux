@@ -78,15 +78,9 @@ path_should_fetch() {
   [ "$should_fetch" -eq 1 ]
 }
 
-is_in_tmux() {
-  [ -n "$TMUX" ]
-}
-
 # Check changed path
 check_current() {
-  if ! is_in_tmux; then
-    exit 0
-  fi
+  check_tmux || return 0
   path="${1-$(pwd)}"
   path_control "$path" &&
     path_should_fetch "$path" &&
